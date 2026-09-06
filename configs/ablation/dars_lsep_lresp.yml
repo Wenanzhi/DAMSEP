@@ -1,0 +1,82 @@
+audionet:
+  audionet_name: SPMamba
+  audionet_config:
+    input_dim: 64
+    n_srcs: 2
+    n_fft: 256
+    stride: 64
+    window: hann
+    n_imics: 1
+    n_layers: 6
+    lstm_hidden_units: 256
+    attn_n_head: 4
+    attn_approx_qk_dim: 512
+    emb_dim: 16
+    emb_ks: 8
+    emb_hs: 1
+    activation: prelu
+    eps: 1.0e-5
+    use_builtin_complex: false
+
+loss:
+  train:
+    loss_func: PITLossWrapper
+    sdr_type: pairwise_neg_snr
+    config:
+      pit_from: no_pit
+      threshold_byloss: false
+      w_rev: 0.0
+      w_recon: 0.5
+      w_rir: 0.0
+  val:
+    loss_func: PITLossWrapper
+    sdr_type: pairwise_neg_sisdr
+    config:
+      pit_from: no_pit
+      threshold_byloss: false
+      w_rev: 0.0
+      w_recon: 0.5
+      w_rir: 0.0
+
+training:
+  system: AudioLightningModule
+  gpus: [0, 1, 2, 3, 4, 5, 6, 7]
+  parallel: ddp
+  epochs: 500
+  seed: 0
+  find_unused_parameters: false
+  early_stop:
+    monitor: val_loss/dataloader_idx_0
+    mode: min
+    patience: 10
+    verbose: true
+  SpeedAug: false
+
+optimizer:
+  optim_name: adam
+  lr: 0.001
+  weight_decay: 0
+
+scheduler:
+  sche_name: ReduceLROnPlateau
+  sche_config:
+    patience: 10
+    factor: 0.5
+
+datamodule:
+  data_name: MixDataModule
+  data_config:
+    train_dir: data/hetmixr/wav8k/min/tr
+    valid_dir: data/hetmixr/wav8k/min/cv
+    test_dir: data/hetmixr/wav8k/min/tt
+    n_src: 2
+    sample_rate: 8000
+    segment: 4.0
+    normalize_audio: false
+    batch_size: 1
+    num_workers: 8
+    pin_memory: true
+    persistent_workers: false
+
+exp:
+  exp_name: dars_ablation_lsep_lresp_s0
