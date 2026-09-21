@@ -1,14 +1,23 @@
-# DARS: Distance-Aware Room-response Separation
+# DAMSEP: Distance-Aware Monaural Source Separation using Multi-RIR Estimation
 
-Official implementation of **Distance-Aware Monaural Source Separation via
-Source-Specific Room Response Estimation**.
+Official implementation of **DAMSEP: Distance-Aware Monaural Source Separation
+using Multi-RIR Estimation**.
 
-DARS separates a reverberant monaural mixture while jointly estimating a clean
+DAMSEP separates a reverberant monaural mixture while jointly estimating a clean
 source signal and a source-specific complex convolutive transfer function
 (CTF) for each output. The CTF can be converted to a time-domain room impulse
 response (RIR) for room-response analysis and ordinal near/far inference.
 
-![DARS architecture](assets/dars_architecture.png)
+## Architecture
+
+![DAMSEP architecture from Figure 1 of the paper: separation, shared dereverberation, and source-specific RIR estimation](assets/damsep_architecture.png)
+
+**Figure 1. Architecture of DAMSEP.** The separation module estimates
+source-specific reverberant spectra. A dereverberation module shared across
+sources predicts clean-source spectra, and the RIR estimation module fuses
+the clean and reverberant branches to estimate source-specific complex CTFs.
+The three training objectives supervise reverberant-source separation,
+clean-source estimation, and CTF-based reconstruction, respectively.
 
 ## Model outputs
 
@@ -27,7 +36,7 @@ The released configuration uses distance-ordered targets: source 1 is nearer
 to the reference microphone and source 2 is farther away.
 
 The Python class remains named `SPMamba` for compatibility with the serialized
-paper checkpoint; the DARS response branch and objectives are implemented in
+paper checkpoint; the DAMSEP response branch and objectives are implemented in
 that class and `look2hear/models/RecRIR.py`.
 
 ## Installation
@@ -45,7 +54,7 @@ driver if the pinned wheels are unavailable on your system.
 
 ## Data layout
 
-DARS expects the distance-ordered HETMIXR layout below. Audio is not bundled
+DAMSEP expects the distance-ordered HETMIXR layout below. Audio is not bundled
 with this repository.
 
 ```text
