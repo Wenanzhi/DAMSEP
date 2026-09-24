@@ -19,6 +19,8 @@ lightning_logs/
 *.wav
 *.flac
 *.mp3
+!docs/audio/**/*.wav
+.demo-cache/
 data/hetmixr/
 data/raw/
 data/generated/

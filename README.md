@@ -8,7 +8,11 @@ Separation using Multi-RIR Estimation**.
 **Wen Wen, Qiang Zhou, Yu Xi, Haoyu Li, Bohan Li, and Kai Yu**
 
 [Code](https://github.com/Wenanzhi/DAMSEP) |
-[Test distance metadata](data/metadata/distance_test.json)
+[Interactive demo](https://wenanzhi.github.io/DAMSEP/) |
+[Test distance metadata (JSON)](data/metadata/distance_test.json)
+
+The [demo source and local preview instructions](docs/README.md) include paired
+test-scene geometry, separation audio, and RIR comparisons.
 
 DAMSEP jointly recovers source signals and source-specific acoustic responses
 from a single-microphone mixture. It combines source separation, shared

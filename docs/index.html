@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="DAMSEP: Distance-Aware Monaural Source Separation using Multi-RIR Estimation. Source geometry, audio examples, and room impulse response comparisons.">
+  <title>DAMSEP: Distance-Aware Monaural Source Separation using Multi-RIR Estimation</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="data/demo-data.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#explore">Skip to the examples</a>
+  <main>
+    <header class="publication-header content" id="overview">
+      <h1>DAMSEP: Distance-Aware Monaural<br class="title-break"> Source Separation using<br class="title-break"> Multi-RIR Estimation</h1>
+      <p class="authors"><span>Wen Wen</span>, <span>Qiang Zhou</span>, <span>Yu Xi</span>, <span>Haoyu Li</span>, <span>Bohan Li</span>, <span>Kai Yu</span></p>
+      <div class="publication-links">
+        <a href="https://github.com/Wenanzhi/DAMSEP" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5-7 7 7 7m8-14 7 7-7 7m-3-16-2 18"/></svg>Code</a>
+        <a href="#listen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13v-1a7 7 0 0 1 14 0v1M3 12h4v8H3zm14 0h4v8h-4z"/></svg>Audio Examples</a>
+        <a href="#responses"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 19h20M4 16V7m4 9V3m4 13V9m4 7v-4m4 4v-2"/></svg>RIR Comparisons</a>
+      </div>
+    </header>
+    <section class="overview-section" aria-labelledby="overview-title">
+      <div class="text-column">
+        <h2 id="overview-title">Overview</h2>
+        <p>DAMSEP jointly recovers source signals and source-specific acoustic responses from a single-microphone mixture.
+          It combines source separation, shared dereverberation, and complex convolutive transfer function (CTF) estimation
+          through source supervision and reverberant reconstruction. The decoded room impulse responses (RIRs) provide
+          relative near/far ordering through their direct-to-reverberant ratios (DRRs).</p>
+      </div>
+    </section>
+    <section class="content paper-section" aria-labelledby="method-title">
+      <h2 id="method-title">Method</h2>
+      <figure class="architecture">
+        <a href="assets/architecture.png" target="_blank" rel="noopener noreferrer" aria-label="View the full-size DAMSEP architecture"><img src="assets/architecture.png" alt="DAMSEP architecture linking source separation, shared dereverberation and source-specific CTF estimation through reconstruction supervision." width="2032" height="560"></a>
+        <figcaption><strong>Figure 1.</strong> Overview of DAMSEP. Source separation, shared dereverberation, and source-specific CTF estimation are trained jointly through reconstruction supervision.</figcaption>
+      </figure>
+    </section>
+    <section class="content paper-section examples-section" id="explore" aria-labelledby="scene-title">
+      <h2 id="scene-title">Test Examples</h2>
+      <p class="section-intro">Six examples from the test set. Select a sample to update the source geometry, audio examples, and RIR comparisons.</p>
+      <div id="scene-picker" class="sample-tabs" role="group" aria-label="Choose a test scene"></div>
+      <div id="loading-message" class="load-message" role="status">Loading examples…</div>
+      <noscript><p class="error-message">Enable JavaScript to select examples, play audio, and view the response curves.</p></noscript>
+      <div class="scene-layout" id="scene-layout" hidden>
+        <figure class="spatial-figure">
+          <div id="spatial-plot" class="spatial-plot"></div>
+          <div class="geometry-legend"><span><i class="dot mic"></i>Microphone</span><span><i class="dot near"></i>Near source</span><span><i class="dot far"></i>Far source</span></div>
+        </figure>
+        <div class="geometry-details">
+          <h3>Ground-truth geometry</h3>
+          <div class="table-wrap"><table class="geometry-table">
+            <thead><tr><th scope="col">Source</th><th scope="col">x</th><th scope="col">y</th><th scope="col">z</th><th scope="col">Distance</th></tr></thead>
+            <tbody id="geometry-rows"></tbody>
+          </table></div>
+          <p>All values are in metres. Distances are measured in 3D from each source to the reference microphone.</p>
+        </div>
+      </div>
+      <p class="figure-caption"><strong>Figure 2.</strong> XY projection relative to the microphone. Coordinates and distances are ground truth; the model predicts relative near/far order.</p>
+      <p class="sample-id" id="scene-id"></p>
+      <section class="example-block" id="listen" aria-labelledby="listen-title">
+        <h2 id="listen-title">Audio Examples</h2>
+        <p class="section-intro">Compare the separated near and far sources with the references and the SPMamba baseline. Each clip is 4 seconds at 8 kHz.</p>
+        <div class="mixture-row"><h3>Input mixture</h3><div id="mixture-player"></div></div>
+        <div class="audio-toolbar"><div class="mode-tabs" role="group" aria-label="Audio output type"><button type="button" data-audio-mode="clean" aria-pressed="true">Clean sources</button><button type="button" data-audio-mode="reverberant" aria-pressed="false">Reverberant sources</button></div></div>
+        <div class="table-wrap audio-comparison" id="audio-comparison"></div>
+        <p class="figure-note" id="audio-note"></p>
+      </section>
+      <section class="example-block" id="responses" aria-labelledby="rir-title">
+        <h2 id="rir-title">RIR Comparisons</h2>
+        <p class="section-intro">Ground-truth and estimated room impulse responses, with the corresponding energy decay curves.</p>
+        <div class="rir-toolbar">
+          <div class="mode-tabs" role="group" aria-label="Source for RIR comparison"><button type="button" data-source="0" aria-pressed="true">Near source</button><button type="button" data-source="1" aria-pressed="false">Far source</button></div>
+          <label class="baseline-select">Baseline: <select id="baseline-select" aria-label="RIR baseline estimator"></select></label>
+        </div>
+        <div class="plot-legend" aria-label="Response plot legend"><span><i class="line reference"></i>Ground truth</span><span><i class="line damsep"></i>DAMSEP</span><span><i class="line baseline"></i><span id="baseline-legend">Rec-RIR</span></span></div>
+        <div class="response-plots">
+          <figure class="response-figure"><div class="plot-heading"><h3>Impulse response</h3><div class="window-options" role="group" aria-label="Impulse response time window"><button type="button" data-window="50" aria-pressed="true">50 ms</button><button type="button" data-window="1000" aria-pressed="false">1 s</button></div></div><div id="rir-plot" class="response-chart"></div></figure>
+          <figure class="response-figure"><div class="plot-heading"><h3>Energy decay curve</h3></div><div id="edc-plot" class="response-chart"></div></figure>
+        </div>
+        <p class="figure-caption"><strong>Figure 3.</strong> RIR waveforms are peak-normalized and polarity-aligned for display. Time is relative to the aligned direct arrival. Energy decay is shown down to −60 dB.</p>
+        <h3 class="table-title">Direct-to-reverberant ratio (DRR)</h3>
+        <div class="table-wrap" id="drr-table"></div>
+        <p class="figure-note">Higher DRR is interpreted as the nearer source. The geometric near/far label is used only to check the inferred order.</p>
+        <details class="protocol"><summary>Evaluation protocol</summary><div>
+          <p>These are two-source test mixtures with fixed source identity. The six scenes span distance-gap percentiles (5, 20, 40, 60, 80 and 95) and were selected independently of model performance. Source coordinates and distances are ground-truth metadata. The model estimates relative order, not distance in metres.</p>
+          <p><strong>DAMSEP response conversion:</strong> the predicted CTF is decoded with a sine sweep, then convolved with the paired <strong>ground-truth direct-path RIR</strong> before comparison with the full reference RIR. This response conversion uses reference information.</p>
+          <p><strong>External RIR estimators:</strong> Rec-RIR, VINP, FiNS, BUDDy and Speech2RIR receive the corresponding DAMSEP-separated reverberant source, resampled to their required rate. Responses are evaluated at 8 kHz, aligned at the direct arrival, with 2.5 ms before and 1 s after it. Absolute propagation delay and gain are excluded. DRR uses a ±2.5 ms direct window and a 5 ms analysis guard. FiNS uses the local epoch-250 checkpoint; Speech2RIR’s native 0.25 s response is zero-padded to the common window.</p>
+          <p><strong>Listening:</strong> all clips use the same test crop and one shared playback gain per scene, preserving relative levels across sources and methods. SPMamba is the clean-source separation baseline. DAMSEP’s clean estimates and reverberant estimates are shown in separate views.</p>
+          <p>These examples use the existing patience-10 DAMSEP checkpoint and patience-5 SPMamba checkpoint. Exact checkpoint hashes and asset-generation details are recorded in the <a href="README.md">demo documentation</a>.</p>
+        </div></details>
+      </section>
+    </section>
+  </main>
+  <footer><div class="content"><p>DAMSEP: Distance-Aware Monaural Source Separation using Multi-RIR Estimation</p><a href="https://github.com/Wenanzhi/DAMSEP" target="_blank" rel="noopener noreferrer">Source code</a></div></footer>
+  <div class="sr-only" id="announcer" aria-live="polite"></div>
+</body>
+</html>
