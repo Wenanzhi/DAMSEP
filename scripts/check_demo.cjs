@@ -147,9 +147,6 @@ const server = http.createServer((req, res) => {
     await page.locator('[data-window="50"]').click();
     assert(await page.locator('.architecture img').isVisible());
     assert(await page.locator('.architecture img').evaluate(img => img.complete && img.naturalWidth > 0));
-    await page.locator('.protocol summary').click();
-    assert(await page.locator('.protocol strong').filter({hasText: 'ground-truth direct-path RIR'}).isVisible());
-    await page.locator('.protocol summary').click();
 
     await page.locator('.scene-button').first().click();
     await page.selectOption('#baseline-select', 'recrir');

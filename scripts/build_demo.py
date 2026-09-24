@@ -60,18 +60,18 @@ def prepare(workspace, cache):
     manifest = read_csv(workspace / "evaluation/rir_baselines/artifacts/dars_p10_xsep_16k/manifest.csv")
     near = [r for r in manifest if r["source"] == "1"]
     lookup = {(r["utterance"], r["source"]): r for r in manifest}
-    near.sort(key=lambda r: metadata[r["utterance"]]["s2"]["distance_to_left_mic"]
-              - metadata[r["utterance"]]["s1"]["distance_to_left_mic"])
+    near.sort(key=lambda r: (metadata[r["utterance"]]["s2"]["distance_to_left_mic"],
+                             metadata[r["utterance"]]["s1"]["distance_to_left_mic"],
+                             r["utterance"]))
     selected = []
-    for index, q in enumerate((.05, .20, .40, .60, .80, .95)):
-        row = near[round((len(near) - 1) * q)]
+    for index, row in enumerate(near[:6]):
         sources = [lookup[(row["utterance"], str(s))] for s in (1, 2)]
         assert len({r["crop_start"] for r in sources}) == 1
         selected.append({"id": "scene-{:02d}".format(index + 1),
-                         "quantile": q, "geometry": metadata[row["utterance"]],
+                         "selectionRank": index + 1, "geometry": metadata[row["utterance"]],
                          "rows": sources})
     write_json(cache / "selection.json", selected)
-    print("Selected six distance-gap quantiles, independently of model scores.", flush=True)
+    print("Selected the six closest pairs by farther-source distance, independently of model scores.", flush=True)
 
 
 def load_experiment(workspace, model_name, device):
@@ -228,13 +228,13 @@ def package(workspace, cache):
                 curves[method] = dict(series(aligned, target), drr=float(metric["est_drr_db"]))
             responses.append(curves)
         scenes.append({"id": id_, "utterance": row["utterance"],
-                       "distanceGapQuantile": scene["quantile"],
+                       "selectionRank": scene["selectionRank"],
                        "cropStartSamples": start, "geometry": scene["geometry"],
                        "audio": audio_data, "playbackGain": gain,
                        "responses": responses})
         print("Packaged", id_, flush=True)
     result = {"sampleRate": 8000, "duration": 4, "methods": METHODS,
-              "selection": "Nearest ranks to the 5th, 20th, 40th, 60th, 80th and 95th distance-gap percentiles among eligible test mixtures; independent of model scores.",
+              "selection": "The six eligible test mixtures with the smallest farther-source distance to the reference microphone, ordered by that distance. Ties use nearer-source distance, then utterance ID. Selection is independent of model scores.",
               "provenance": {k: json.loads((cache / (k + "_provenance.json")).read_text()) for k in ("damsep", "spmamba")},
               "scenes": scenes}
     (docs / "data/demo-data.js").write_text("window.DAMSEP_DEMO=" + json.dumps(

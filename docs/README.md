@@ -35,20 +35,22 @@ does not publish it. See the [GitHub Pages publishing-source documentation](http
 
 ## Samples and correspondence
 
-The scenes are selected at the nearest ranks to the 5th, 20th, 40th, 60th, 80th
-and 95th percentiles of **far-minus-near geometric distance** among eligible
-test mixtures. Selection is independent of model scores. Each scene uses the
-exact four-second crop and source identities in the existing RIR baseline
-input manifest. Only these six scenes are included in the page.
+The scenes are the six eligible test mixtures with the **smallest farther-source
+distance to the reference microphone**. They are ordered by that distance;
+ties use nearer-source distance, then utterance ID. Both sources are within
+2.5 metres: near sources span 0.92–1.12 m and far sources span 2.34–2.48 m.
+Selection is independent of model scores. Each scene uses the exact four-second
+crop and source identities in the existing RIR baseline input manifest.
+Only these six scenes are included in the page.
 
 | Scene | Test entry | Crop start (samples at 8 kHz) |
 | --- | --- | --- |
-| 01 | `400o0d2q_0.36146_00003_-0.36146.wav` | 4192 |
-| 02 | `s016_u048_1_1_0.51692_dialog_2_d889_part001_-0.51692.wav` | 0 |
-| 03 | `dialog_2_d5679_part001_2.29929_00001_-2.29929.wav` | 731 |
-| 04 | `40bo030p_1.83269_dialog_2_d4351_part001_-1.83269.wav` | 945 |
-| 05 | `00002_0.94964_00008_-0.94964.wav` | 139 |
-| 06 | `020o030o_0.55030_00053_-0.55030.wav` | 9316 |
+| 01 | `00004_2.26982_dialog_2_d3334_part001_-2.26982.wav` | 336 |
+| 02 | `dialog_2_d6901_part000_2.49430_00041_-2.49430.wav` | 968 |
+| 03 | `400o031b_1.97479_dialog_2_d2657_part000_-1.97479.wav` | 1507 |
+| 04 | `dialog_2_d5178_part002_1.88300_00002_-1.88300.wav` | 344 |
+| 05 | `dialog_2_d4116_part000_0.88970_22ha0112_-0.88970.wav` | 967 |
+| 06 | `20ua010s_2.06999_dialog_2_d3813_part001_-2.06999.wav` | 1171 |
 
 The geometry is an XY projection relative to the microphone, with one common
 scale for the two axes. The labelled distances use all three coordinates.

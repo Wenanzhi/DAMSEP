@@ -140,10 +140,6 @@ tbody tr:last-child > * { border-bottom-color: #b5b5b5; }
 .order-result { font-size: 13px; }
 .order-result small { display: block; color: var(--muted); font-size: 12px; }
 .order-result.disagrees small { color: #a55a26; }
-.protocol { margin-top: 28px; padding-top: 17px; border-top: 1px solid #dedede; }
-.protocol summary { font-size: 15px; color: var(--blue); }
-.protocol > div { margin-top: 14px; font-size: 14px; line-height: 1.7; }
-.protocol p + p { margin-top: 12px; }
 footer { background: #f5f5f5; padding: 29px 0; text-align: center; font-size: 13px; color: #777; }
 footer a { display: inline-block; margin-top: 5px; }
 .load-message, .error-message { padding: 20px; text-align: center; }
@@ -222,7 +218,6 @@ footer a { display: inline-block; margin-top: 5px; }
   .drr-results .line { width: 12px; }
   .order-result, .order-result small { font-size: 11px; }
   .table-title { font-size: 17px; }
-  .protocol > div { font-size: 13px; }
   footer { font-size: 12px; padding: 23px 0; }
 }
 

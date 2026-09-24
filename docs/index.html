@@ -41,7 +41,7 @@
     </section>
     <section class="content paper-section examples-section" id="explore" aria-labelledby="scene-title">
       <h2 id="scene-title">Test Examples</h2>
-      <p class="section-intro">Six examples from the test set. Select a sample to update the source geometry, audio examples, and RIR comparisons.</p>
+      <p class="section-intro">Six examples from the test set, with both sources within 2.5 metres of the microphone. Select a sample to update the source geometry, audio examples, and RIR comparisons.</p>
       <div id="scene-picker" class="sample-tabs" role="group" aria-label="Choose a test scene"></div>
       <div id="loading-message" class="load-message" role="status">Loading examples…</div>
       <noscript><p class="error-message">Enable JavaScript to select examples, play audio, and view the response curves.</p></noscript>
@@ -85,13 +85,6 @@
         <h3 class="table-title">Direct-to-reverberant ratio (DRR)</h3>
         <div class="table-wrap" id="drr-table"></div>
         <p class="figure-note">Higher DRR is interpreted as the nearer source. The geometric near/far label is used only to check the inferred order.</p>
-        <details class="protocol"><summary>Evaluation protocol</summary><div>
-          <p>These are two-source test mixtures with fixed source identity. The six scenes span distance-gap percentiles (5, 20, 40, 60, 80 and 95) and were selected independently of model performance. Source coordinates and distances are ground-truth metadata. The model estimates relative order, not distance in metres.</p>
-          <p><strong>DAMSEP response conversion:</strong> the predicted CTF is decoded with a sine sweep, then convolved with the paired <strong>ground-truth direct-path RIR</strong> before comparison with the full reference RIR. This response conversion uses reference information.</p>
-          <p><strong>External RIR estimators:</strong> Rec-RIR, VINP, FiNS, BUDDy and Speech2RIR receive the corresponding DAMSEP-separated reverberant source, resampled to their required rate. Responses are evaluated at 8 kHz, aligned at the direct arrival, with 2.5 ms before and 1 s after it. Absolute propagation delay and gain are excluded. DRR uses a ±2.5 ms direct window and a 5 ms analysis guard. FiNS uses the local epoch-250 checkpoint; Speech2RIR’s native 0.25 s response is zero-padded to the common window.</p>
-          <p><strong>Listening:</strong> all clips use the same test crop and one shared playback gain per scene, preserving relative levels across sources and methods. SPMamba is the clean-source separation baseline. DAMSEP’s clean estimates and reverberant estimates are shown in separate views.</p>
-          <p>These examples use the existing patience-10 DAMSEP checkpoint and patience-5 SPMamba checkpoint. Exact checkpoint hashes and asset-generation details are recorded in the <a href="README.md">demo documentation</a>.</p>
-        </div></details>
       </section>
     </section>
   </main>
