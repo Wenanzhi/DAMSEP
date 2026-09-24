@@ -8,7 +8,6 @@ Separation using Multi-RIR Estimation**.
 **Wen Wen, Qiang Zhou, Yu Xi, Haoyu Li, Bohan Li, and Kai Yu**
 
 [Code](https://github.com/Wenanzhi/DAMSEP) |
-[Checkpoint](checkpoints/best.pth) |
 [Test distance metadata](data/metadata/distance_test.json)
 
 DAMSEP jointly recovers source signals and source-specific acoustic responses
@@ -18,39 +17,13 @@ through source supervision and reverberant reconstruction. In the paper,
 the decoded room impulse responses (RIRs) provide relative near/far ordering
 through their direct-to-reverberant ratios (DRRs).
 
-## Performance
-
-### Network architecture
+## Network architecture
 
 <img src="assets/damsep_architecture.png" alt="DAMSEP architecture: joint source separation, dereverberation, and source-specific CTF estimation" width="800">
 
 The three modules are trained jointly to recover source content and acoustic
 responses. Reconstruction supervision connects the predicted CTFs to the
 reference reverberant sources.
-
-### Results
-
-**Source separation on HETMIXR.** Results reported in the paper, evaluated on
-2,801 test mixtures. All separation metrics are in dB.
-
-| Model | Parameters | SI-SDRi ↑ | SDRi ↑ | SIR ↑ | SAR ↑ |
-| --- | --- | --- | --- | --- | --- |
-| TDANet | 2.3M | 8.08 | 7.94 | 17.95 | 9.33 |
-| SPMamba | 6.1M | 13.06 | 11.68 | 22.28 | 12.48 |
-| TF-Locoformer | 15M | 14.25 | 12.67 | 22.50 | 13.51 |
-| **DAMSEP** | 7.2M | **14.90** | **13.24** | **24.29** | **13.91** |
-
-**RIR estimation and distance ordering.** DAMSEP receives the mixture in both
-settings. The measured-RIR evaluation uses 390 mixtures from an unseen room,
-without fine-tuning.
-
-| Test set | RIR-50 ↓ | LSD (dB) ↓ | Distance-ordering accuracy ↑ |
-| --- | --- | --- | --- |
-| HETMIXR | 0.032 | 1.84 | 99.11% |
-| Measured-RIR Test Set | 0.055 | 4.71 | 99.74% |
-
-RIR-50 is waveform RMSE over the first 50 ms; LSD is log-spectral distance.
-See the implementation notes below for the released training settings.
 
 ## Quick start
 
@@ -97,29 +70,6 @@ Checkpoints and the resolved configuration are saved to
 `Experiments/checkpoint/<exp_name>/`. TensorBoard logs are saved to
 `Experiments/tensorboard_logs/`.
 
-### Pretrained checkpoint
-
-Load [checkpoints/best.pth](checkpoints/best.pth) using the model arguments in
-[configs/dars.yml](configs/dars.yml):
-
-```python
-import yaml
-from look2hear.models import SPMamba
-
-with open("configs/dars.yml", "r", encoding="utf-8") as handle:
-    config = yaml.safe_load(handle)
-
-model = SPMamba.from_pretrain(
-    "checkpoints/best.pth",
-    sample_rate=config["datamodule"]["data_config"]["sample_rate"],
-    **config["audionet"]["audionet_config"],
-)
-model.eval()
-```
-
-The exported `best.pth` contains model weights and metadata. Use a Lightning
-`.ckpt` file to resume training with optimizer and scheduler state.
-
 ### RIR analysis
 
 The retained utilities operate on already decoded, two-channel RIR WAV files:
@@ -143,16 +93,14 @@ not included in this release.
   reconstruction losses use `w_rev=0.1` and `w_recon=0.5`. Reconstruction
   filters reference clean-source spectra through the estimated CTFs.
   Direct RIR supervision is disabled (`w_rir=0`).
-- **Source assignment:** The default configuration and released checkpoint use
+- **Source assignment:** The default configuration uses
   fixed distance order (`pit_from: no_pit`), with source 1 nearer and source 2
   farther. Section 2.3 of the manuscript describes permutation-invariant
   matching; this differs from the released source-assignment setting.
-- **Checkpoint settings:** The default scheduler and early-stopping patience
-  are 5. The released checkpoint was trained with an early-stopping patience
-  of 10.
+- **Training settings:** The default scheduler and early-stopping patience
+  are 5.
 - **Naming:** The model class `SPMamba`, environment name `dars`, and existing
-  configuration paths are retained for compatibility with the released code
-  and checkpoint.
+  configuration paths follow the current implementation.
 
 For input waveforms of shape `[B, T]`, the default model returns:
 
