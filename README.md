@@ -1,160 +1,106 @@
-# DAMSEP: Distance-Aware Monaural Source Separation using Multi-RIR Estimation
+# DAMSEP
+
+## Introduction
+
+Official PyTorch implementation of **DAMSEP: Distance-Aware Monaural Source
+Separation using Multi-RIR Estimation**.
 
 **Wen Wen, Qiang Zhou, Yu Xi, Haoyu Li, Bohan Li, and Kai Yu**
 
-DAMSEP jointly estimates source signals and source-specific acoustic responses
-from a single-microphone mixture. A separation backbone is coupled with shared
-dereverberation and response-estimation modules. Clean-source supervision,
-reverberant-source supervision, and acoustic reconstruction train these modules
-together. In the paper, the estimated responses are decoded into room impulse
-responses (RIRs), whose direct-to-reverberant ratios (DRRs) provide relative
-near/far ordering.
+[Code](https://github.com/Wenanzhi/DAMSEP) |
+[Checkpoint](checkpoints/best.pth) |
+[Test distance metadata](data/metadata/distance_test.json)
 
-This release includes the training implementation and configuration, a
-pretrained checkpoint, RIR analysis utilities, and test-set distance metadata.
-Training audio must be prepared separately; see [Data preparation](#data-preparation).
+DAMSEP jointly recovers source signals and source-specific acoustic responses
+from a single-microphone mixture. It combines source separation, shared
+dereverberation, and complex convolutive transfer function (CTF) estimation
+through source supervision and reverberant reconstruction. In the paper,
+the decoded room impulse responses (RIRs) provide relative near/far ordering
+through their direct-to-reverberant ratios (DRRs).
 
-## Architecture
+## Performance
 
-![DAMSEP architecture: source separation, shared dereverberation, and source-specific response estimation](assets/damsep_architecture.png)
+### Network architecture
 
-**Figure 1. Architecture of DAMSEP.** The separation module estimates
-source-specific reverberant spectra. The shared dereverberation module predicts
-clean-source spectra. The response branch combines the clean and reverberant
-representations to estimate a complex convolutive transfer function (CTF) for
-each source. Reconstruction supervision links the estimated CTFs to the
-reference reverberant signals.
+<img src="assets/damsep_architecture.png" alt="DAMSEP architecture: joint source separation, dereverberation, and source-specific CTF estimation" width="800">
 
-The Python model class is named `SPMamba` to preserve checkpoint compatibility.
-The joint model is implemented in [SPMamba.py](look2hear/models/SPMamba.py) and
-[RecRIR.py](look2hear/models/RecRIR.py).
+The three modules are trained jointly to recover source content and acoustic
+responses. Reconstruction supervision connects the predicted CTFs to the
+reference reverberant sources.
 
-## Results reported in the paper
+### Results
 
-| Evaluation setting | Metric | DAMSEP |
-| --- | --- | --- |
-| HETMIXR, 2,801 eligible test mixtures | SI-SDR improvement | 14.90 dB |
-| HETMIXR, 2,801 eligible test mixtures | Distance-ordering accuracy | 99.11% |
-| Unseen room, 390 mixtures rendered with measured RIRs | Distance-ordering accuracy | 99.74% |
+**Source separation on HETMIXR.** Results reported in the paper, evaluated on
+2,801 test mixtures. All separation metrics are in dB.
 
-The model has 7.2 million parameters. On HETMIXR, the paper reports a 0.65 dB
-SI-SDRi improvement over TF-Locoformer. The measured-RIR experiment uses a model
-trained on simulated acoustic environments, without fine-tuning on the unseen
-room. See [Configuration notes](#configuration-notes) when using this release
-to reproduce the experiments.
+| Model | Parameters | SI-SDRi ↑ | SDRi ↑ | SIR ↑ | SAR ↑ |
+| --- | --- | --- | --- | --- | --- |
+| TDANet | 2.3M | 8.08 | 7.94 | 17.95 | 9.33 |
+| SPMamba | 6.1M | 13.06 | 11.68 | 22.28 | 12.48 |
+| TF-Locoformer | 15M | 14.25 | 12.67 | 22.50 | 13.51 |
+| **DAMSEP** | 7.2M | **14.90** | **13.24** | **24.29** | **13.91** |
 
-## Installation
+**RIR estimation and distance ordering.** DAMSEP receives the mixture in both
+settings. The measured-RIR evaluation uses 390 mixtures from an unseen room,
+without fine-tuning.
 
-The reference environment uses Python 3.9, PyTorch 2.0, and
-`mamba-ssm==1.2.0.post1`. Use a CUDA-capable Linux environment with a compatible
-NVIDIA driver and CUDA build toolchain.
+| Test set | RIR-50 ↓ | LSD (dB) ↓ | Distance-ordering accuracy ↑ |
+| --- | --- | --- | --- |
+| HETMIXR | 0.032 | 1.84 | 99.11% |
+| Measured-RIR Test Set | 0.055 | 4.71 | 99.74% |
+
+RIR-50 is waveform RMSE over the first 50 ms; LSD is log-spectral distance.
+See the implementation notes below for the released training settings.
+
+## Quick start
+
+### Installation
+
+Use a CUDA-capable Linux environment. The reference dependencies include
+Python 3.9, PyTorch 2.0, and `mamba-ssm==1.2.0.post1`.
 
 ```bash
+git clone https://github.com/Wenanzhi/DAMSEP.git
+cd DAMSEP
 conda env create -f environment.yml
 conda activate dars
 ```
 
-The environment name and existing `dars` file paths are retained for
-compatibility with the released code and checkpoint.
+### Prepare dataset
 
-## Data preparation
+Prepare 8 kHz audio and aligned manifests following
+[data/README.md](data/README.md). Set `train_dir`, `valid_dir`, and `test_dir`
+in [configs/dars.yml](configs/dars.yml); the current loader requires all three
+splits. Training audio and manifests must be prepared separately.
 
-HETMIXR contains heterogeneous two-source mixtures with clean references,
-reverberant source images, source-specific RIRs, and geometric distance labels.
-The paper uses 20,000 training, 5,000 validation, and 3,000 generated test
-mixtures; excluding test mixtures shorter than four seconds leaves 2,801.
-Simulated reverberation times range from 0.1 to 1.0 s, with source distances
-sampled from 1.0–1.9 m and 2.0–4.0 m.
+HETMIXR contains 20,000 training, 5,000 validation, and 3,000 generated test
+mixtures; four-second eligibility filtering leaves 2,801 test mixtures.
+The released [distance metadata](data/metadata/distance_test.json) contains
+geometry and near/far labels for all 3,000 generated test entries.
 
-Prepare 8 kHz audio and six aligned JSON manifests in **each** split directory:
+### Training
 
-```text
-data/hetmixr/wav8k/min/
-├── tr/  # training manifests
-├── cv/  # validation manifests
-└── tt/  # test manifests
-```
-
-The required manifests are `mix_both_reverb.json`, `s1_anechoic.json`,
-`s2_anechoic.json`, `s1_reverb.json`, `s2_reverb.json`, and `rir_reverb.json`.
-Every manifest contains `[audio_path, num_samples]` pairs in the same mixture
-order. Source 1 is the nearer source and source 2 is the farther source for the
-released fixed-order recipe.
-
-See [data/README.md](data/README.md) for the format and channel conventions.
-The included [distance_test.json](data/metadata/distance_test.json) contains
-test-set geometry and ordering labels. It does not contain the audio or the
-training manifests.
-
-## Training
-
-Edit [configs/dars.yml](configs/dars.yml):
-
-1. Set `datamodule.data_config.train_dir`, `valid_dir`, and `test_dir` to the
-   directories containing your manifests. All three splits are required by the
-   current data loader; the test loader is used for periodic monitoring.
-2. Set `training.gpus` for your machine, for example `[0]` for one GPU. The
-   checked-in configuration lists eight GPUs; DDP is used for multiple GPUs.
-3. Choose an experiment name with `exp.exp_name` and adjust the data-loading
-   workers for your hardware. Keep the default per-device batch size of 1 for
-   the current CTF reconstruction implementation.
-
-Run from the repository root:
+Set `training.gpus` in the configuration to your available GPUs, for example
+`[0]` for one GPU. Keep the default per-device batch size of 1 for the current
+CTF reconstruction implementation, and set `exp.exp_name` for the run.
 
 ```bash
+# Train from scratch
 python audio_train.py --conf_dir configs/dars.yml
-```
 
-### Training objectives
-
-The default recipe uses four-second segments at 8 kHz, Adam with an initial
-learning rate of `1e-3`, and the following supervision:
-
-| Objective | Configuration | Weight |
-| --- | --- | --- |
-| Clean-source estimation | `pairwise_neg_snr` during training | 1.0 |
-| Reverberant-source estimation | `w_rev` | 0.1 |
-| CTF-based reverberant reconstruction | `w_recon` | 0.5 |
-
-Reconstruction uses the reference clean-source spectra and the estimated CTFs
-to explain the corresponding reverberant sources. The response branch is
-trained through reconstruction; direct RIR supervision is disabled (`w_rir=0`).
-The implementation is in [pit_wrapper.py](look2hear/losses/pit_wrapper.py).
-
-### Checkpoints, logs, and resuming
-
-Training writes Lightning checkpoints, a resolved configuration, loss history,
-and the exported `best.pth` to `Experiments/checkpoint/<exp_name>/`.
-TensorBoard logs are written to `Experiments/tensorboard_logs/` by default.
-Set `training.logger: wandb` to use Weights & Biases or
-`training.logger: none` to disable the experiment logger.
-
-Resume a run with its Lightning checkpoint:
-
-```bash
+# Resume a training run
 python audio_train.py --conf_dir configs/dars.yml \
   --resume_from_checkpoint Experiments/checkpoint/dars_mixed_p5/last.ckpt
 ```
 
-The released `best.pth` contains model weights and metadata; use a training
-`.ckpt` file to restore optimizer and scheduler state when resuming.
+Checkpoints and the resolved configuration are saved to
+`Experiments/checkpoint/<exp_name>/`. TensorBoard logs are saved to
+`Experiments/tensorboard_logs/`.
 
-### Configuration notes
+### Pretrained checkpoint
 
-- The released default configuration and pretrained checkpoint use fixed
-  distance-ordered supervision (`pit_from: no_pit`). Section 2.3 of the
-  manuscript describes permutation-invariant matching. These source-assignment
-  settings differ and should be accounted for when reproducing the method.
-- The default configuration uses a scheduler patience and early-stopping
-  patience of 5. The retained checkpoint comes from an experiment with an
-  early-stopping patience of 10.
-
-## Pretrained checkpoint and model outputs
-
-The pretrained weights are included at
-[checkpoints/best.pth](checkpoints/best.pth).
-Architecture arguments for loading the model are provided by
-[configs/dars.yml](configs/dars.yml).
+Load [checkpoints/best.pth](checkpoints/best.pth) using the model arguments in
+[configs/dars.yml](configs/dars.yml):
 
 ```python
 import yaml
@@ -171,43 +117,56 @@ model = SPMamba.from_pretrain(
 model.eval()
 ```
 
-For an input waveform batch of shape `[B, T]`, the default model returns:
+The exported `best.pth` contains model weights and metadata. Use a Lightning
+`.ckpt` file to resume training with optimizer and scheduler state.
 
-| Key | Shape | Meaning |
-| --- | --- | --- |
-| `x_sep` | `[B, 2, T]` | Separated reverberant source images |
-| `x_derev` | `[B, 2, T]` | Clean-source estimates |
-| `rir` | `[B*2, 2, 257, 60]` | Real and imaginary components of each source's CTF |
+### RIR analysis
 
-The `rir` output represents a complex CTF. The paper converts it to a
-time-domain RIR using a fixed sine sweep and inverse filtering. This release
-does not include that decoding pipeline.
-
-## RIR analysis utilities
-
-The retained [look2hear/eval/](look2hear/eval/) scripts operate on a directory
-of already decoded, two-channel RIR WAV files:
+The retained utilities operate on already decoded, two-channel RIR WAV files:
 
 ```bash
 python look2hear/eval/estimate_DRR.py -i path/to/rir_wavs --sr 8000
 python look2hear/eval/estimate_T60_stereo.py -i path/to/rir_wavs --sr 8000
 ```
 
-They estimate channel-wise DRR and/or reverberation time and save JSON
-summaries beside the input files. Their inputs are time-domain RIRs rather
-than the model's CTF tensors.
+They save acoustic-parameter estimates and channel-comparison summaries as
+JSON files beside the inputs. The model's `rir` output is a complex CTF; the
+sine-sweep and inverse-filtering pipeline used to decode it in the paper is
+not included in this release.
 
-## Acknowledgements and license
+<details>
+<summary>Implementation notes and model outputs</summary>
 
-The separation backbone and training framework build on
-[SPMamba](https://github.com/JusperLee/SPMamba). The response-estimation design
-and reconstruction objective build on
-[Rec-RIR](https://github.com/Audio-WestlakeU/Rec-RIR).
+- **Training objectives:** The default recipe uses four-second segments at
+  8 kHz and Adam with an initial learning rate of `1e-3`. Clean-source
+  negative-SNR supervision has unit weight; reverberant-source and CTF
+  reconstruction losses use `w_rev=0.1` and `w_recon=0.5`. Reconstruction
+  filters reference clean-source spectra through the estimated CTFs.
+  Direct RIR supervision is disabled (`w_rir=0`).
+- **Source assignment:** The default configuration and released checkpoint use
+  fixed distance order (`pit_from: no_pit`), with source 1 nearer and source 2
+  farther. Section 2.3 of the manuscript describes permutation-invariant
+  matching; this differs from the released source-assignment setting.
+- **Checkpoint settings:** The default scheduler and early-stopping patience
+  are 5. The released checkpoint was trained with an early-stopping patience
+  of 10.
+- **Naming:** The model class `SPMamba`, environment name `dars`, and existing
+  configuration paths are retained for compatibility with the released code
+  and checkpoint.
 
-The repository is released under the [Apache License 2.0](LICENSE).
-Rec-RIR-derived components retain their [MIT license](licenses/Rec-RIR-LICENSE).
+For input waveforms of shape `[B, T]`, the default model returns:
+
+| Key | Shape | Output |
+| --- | --- | --- |
+| `x_sep` | `[B, 2, T]` | Separated reverberant sources |
+| `x_derev` | `[B, 2, T]` | Clean-source estimates |
+| `rir` | `[B*2, 2, 257, 60]` | Real and imaginary components of source-specific CTFs |
+
+</details>
 
 ## Citation
+
+Please cite DAMSEP if you use this work:
 
 ```bibtex
 @misc{wen2026damsep,
@@ -218,3 +177,13 @@ Rec-RIR-derived components retain their [MIT license](licenses/Rec-RIR-LICENSE).
 ```
 
 The public preprint link and identifier will be added when available.
+
+## Acknowledgements
+
+The separation backbone and training framework build on
+[SPMamba](https://github.com/JusperLee/SPMamba). The response-estimation design
+and reconstruction objective build on
+[Rec-RIR](https://github.com/Audio-WestlakeU/Rec-RIR).
+
+This repository uses the [Apache License 2.0](LICENSE).
+Rec-RIR-derived components retain their [MIT license](licenses/Rec-RIR-LICENSE).
