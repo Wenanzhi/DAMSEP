@@ -9,9 +9,6 @@ Separation using Multi-RIR Estimation**.
 
 [Code](https://github.com/Wenanzhi/DAMSEP) | [Demo](https://wenanzhi.github.io/DAMSEP/)
 
-The [demo source and local preview instructions](docs/README.md) include paired
-test-scene geometry, separation audio, and RIR comparisons.
-
 DAMSEP jointly recovers source signals and source-specific acoustic responses
 from a single-microphone mixture. It combines source separation, shared
 dereverberation, and complex convolutive transfer function (CTF) estimation
