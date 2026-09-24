@@ -4,16 +4,6 @@
 # LastEditors: Please set LastEditors
 # LastEditTime: 2022-07-29 06:23:03
 ###
-from .echo2mix_datamodule import Echo2MixDataModule
-from .libri2mixdatamodule import Libri2MixDataModule
-from .whamdatamodule import WhamDataModule
-from .minedatamodule import MineDataModule
 from .mixdatamodule import MixDataModule
 
-__all__ = [
-    "Echo2MixDataModule",
-    "Libri2MixDataModule",
-    "WhamDataModule",
-    "MineDataModule",
-    "MixDataModule",
-]
+__all__ = ["MixDataModule"]

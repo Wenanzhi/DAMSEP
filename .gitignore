@@ -28,5 +28,4 @@ checkpoints/*
 !checkpoints/dars_mixed_p10/
 checkpoints/dars_mixed_p10/*
 !checkpoints/dars_mixed_p10/best.pth
-!checkpoints/dars_mixed_p10/conf.yml
 checkpoints/**/results/

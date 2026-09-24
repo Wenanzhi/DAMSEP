@@ -14,7 +14,6 @@ import look2hear.datas
 import look2hear.models
 import look2hear.system
 import look2hear.losses
-import look2hear.metrics
 import look2hear.utils
 from look2hear.system import make_optimizer
 from dataclasses import dataclass
