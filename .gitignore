@@ -24,8 +24,4 @@ data/raw/
 data/generated/
 
 checkpoints/*
-!checkpoints/README.md
-!checkpoints/dars_mixed_p10/
-checkpoints/dars_mixed_p10/*
-!checkpoints/dars_mixed_p10/best.pth
-checkpoints/**/results/
+!checkpoints/best.pth

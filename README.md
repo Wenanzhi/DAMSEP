@@ -152,10 +152,9 @@ The released `best.pth` contains model weights and metadata; use a training
 ## Pretrained checkpoint and model outputs
 
 The pretrained weights are included at
-[checkpoints/dars_mixed_p10/best.pth](checkpoints/dars_mixed_p10/best.pth).
+[checkpoints/best.pth](checkpoints/best.pth).
 Architecture arguments for loading the model are provided by
-[configs/dars.yml](configs/dars.yml). The file size and SHA-256 digest are
-recorded in [checkpoints/README.md](checkpoints/README.md).
+[configs/dars.yml](configs/dars.yml).
 
 ```python
 import yaml
@@ -165,7 +164,7 @@ with open("configs/dars.yml", "r", encoding="utf-8") as handle:
     config = yaml.safe_load(handle)
 
 model = SPMamba.from_pretrain(
-    "checkpoints/dars_mixed_p10/best.pth",
+    "checkpoints/best.pth",
     sample_rate=config["datamodule"]["data_config"]["sample_rate"],
     **config["audionet"]["audionet_config"],
 )
@@ -207,7 +206,6 @@ and reconstruction objective build on
 
 The repository is released under the [Apache License 2.0](LICENSE).
 Rec-RIR-derived components retain their [MIT license](licenses/Rec-RIR-LICENSE).
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution.
 
 ## Citation
 
