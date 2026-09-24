@@ -7,9 +7,7 @@ Separation using Multi-RIR Estimation**.
 
 **Wen Wen, Qiang Zhou, Yu Xi, Haoyu Li, Bohan Li, and Kai Yu**
 
-[Code](https://github.com/Wenanzhi/DAMSEP) |
-[Interactive demo](https://wenanzhi.github.io/DAMSEP/) |
-[Test distance metadata (JSON)](data/metadata/distance_test.json)
+[Code](https://github.com/Wenanzhi/DAMSEP) | [Demo](https://wenanzhi.github.io/DAMSEP/)
 
 The [demo source and local preview instructions](docs/README.md) include paired
 test-scene geometry, separation audio, and RIR comparisons.
