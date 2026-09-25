@@ -9,7 +9,7 @@ Separation using Multi-RIR Estimation**.
 
 **Wen Wen, Qiang Zhou, Yu Xi, Haoyu Li, Bohan Li, and Kai Yu**
 
-[Code](https://github.com/Wenanzhi/DAMSEP) | [Demo](https://wenanzhi.github.io/DAMSEP/)
+[Paper](https://arxiv.org/abs/2609.29749) | [Code](https://github.com/Wenanzhi/DAMSEP) | [Demo](https://wenanzhi.github.io/DAMSEP/)
 
 DAMSEP jointly recovers source signals and source-specific acoustic responses
 from a single-microphone mixture. It combines source separation, shared
@@ -115,17 +115,19 @@ For input waveforms of shape `[B, T]`, the default model returns:
 
 ## Citation
 
-Please cite DAMSEP if you use this work:
+Please cite [DAMSEP (arXiv:2609.29749)](https://arxiv.org/abs/2609.29749) if you use this work:
 
 ```bibtex
 @misc{wen2026damsep,
   title  = {DAMSEP: Distance-Aware Monaural Source Separation using Multi-RIR Estimation},
   author = {Wen, Wen and Zhou, Qiang and Xi, Yu and Li, Haoyu and Li, Bohan and Yu, Kai},
-  year   = {2026}
+  year   = {2026},
+  eprint = {2609.29749},
+  archivePrefix = {arXiv},
+  primaryClass = {eess.AS},
+  url    = {https://arxiv.org/abs/2609.29749}
 }
 ```
-
-The public preprint link and identifier will be added when available.
 
 ## License
 
