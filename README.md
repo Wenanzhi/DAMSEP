@@ -5,6 +5,8 @@
 Official PyTorch implementation of **DAMSEP: Distance-Aware Monaural Source
 Separation using Multi-RIR Estimation**.
 
+**Submitted to ICASSP 2027.**
+
 **Wen Wen, Qiang Zhou, Yu Xi, Haoyu Li, Bohan Li, and Kai Yu**
 
 [Code](https://github.com/Wenanzhi/DAMSEP) | [Demo](https://wenanzhi.github.io/DAMSEP/)
@@ -125,12 +127,7 @@ Please cite DAMSEP if you use this work:
 
 The public preprint link and identifier will be added when available.
 
-## Acknowledgements
-
-The separation backbone and training framework build on
-[SPMamba](https://github.com/JusperLee/SPMamba). The response-estimation design
-and reconstruction objective build on
-[Rec-RIR](https://github.com/Audio-WestlakeU/Rec-RIR).
+## License
 
 This repository uses the [Apache License 2.0](LICENSE).
 Rec-RIR-derived components retain their [MIT license](licenses/Rec-RIR-LICENSE).
